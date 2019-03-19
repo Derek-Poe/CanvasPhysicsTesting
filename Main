@@ -16,15 +16,19 @@ newPieces = [];
 GamePiece = [];
 newPieceToUpdate = [];
 newGamePiece = 0;
+randoSpeed = 2;
 
 newPieceSpeed = 1000;
 
 var myGamePiece;
 
 function startGame() {
-    myGamePiece = new component(30, 30, "#00e600", 80, 75);
+	myGamePiece = new component(0, 0, "black", 0, 0);
     myGameArea.start();
-}
+
+	randoNum = (myGameArea.canvas.width*0.5)-3;
+	
+	}
 
 var myGameArea = {
     canvas : document.createElement("canvas"),
@@ -74,9 +78,126 @@ function component(width, height, color, x, y, type) {
     }
 }
 
+function component2(radius, color, x, y) {
+    this.radius = radius;
+    this.x = x;
+    this.y = y;    
+    this.speedX = randoSpeed;
+    this.speedY = 0;    
+    this.gravity = 0.8;
+    this.gravitySpeed = 1;
+    this.bounce = 0.9;
+    this.update = function() {
+        ctx = myGameArea.context;
+        ctx.fillStyle = color;
+		ctx.beginPath();
+		ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
+		ctx.fill();
+    }
+    this.newPos = function() {
+        this.gravitySpeed += this.gravity;
+        this.x += this.speedX;
+        this.y += this.speedY + this.gravitySpeed;
+        this.hitBottom();
+		this.hitOther();
+    }
+    this.hitBottom = function() {
+        var rockbottom = myGameArea.canvas.height - this.radius;
+        if (this.y > rockbottom) {
+            this.y = rockbottom;
+            this.gravitySpeed = -(this.gravitySpeed * this.bounce);
+        }
+    }
+	this.hitOther = function(){
+	
+	/*if(newGamePiece > 1){
+	
+			for(let i = 0; i < newGamePiece; i++){
+	
+				var dx = newPieces[newGamePiece-2].x - newPieces[newGamePiece-1].x;
+				var dy = newPieces[newGamePiece-2].y - newPieces[newGamePiece-1].y;
+				var distance = Math.sqrt(dx * dx + dy * dy);
+				
+				circle1Bottom = newPieces[newGamePiece-2].y - newPieces[newGamePiece-2].radius;
+				circle1Top = newPieces[newGamePiece-2].y + newPieces[newGamePiece-2].radius;
+				circle1Left = newPieces[newGamePiece-2].x + newPieces[newGamePiece-2].radius;
+				circle1Right = newPieces[newGamePiece-2].x - newPieces[newGamePiece-2].radius;
+				
+				circle2Bottom = newPieces[newGamePiece-1].y + newPieces[newGamePiece-1].radius;
+				circle2Top = newPieces[newGamePiece-1].y - newPieces[newGamePiece-1].radius;
+				circle2Left = newPieces[newGamePiece-1].x - newPieces[newGamePiece-1].radius;
+				circle2Right = newPieces[newGamePiece-1].x + newPieces[newGamePiece-1].radius;
+
+				if (distance < newPieces[newGamePiece-2].radius + newPieces[newGamePiece-1].radius) {
+					
+					console.log("collision");
+					
+					if(circle1Top == circle1Bottom){
+					
+						//nothing
+					
+					}
+					
+					if(circle1Top < circle2Bottom){
+					
+						circle1Top = circle2Bottom;
+						newPieces[newGamePiece-2].gravitySpeed = (newPieces[newGamePiece-2].gravitySpeed * newPieces[newGamePiece-2].bounce);
+						console.log("topbottom");
+					
+					}
+					else if(circle1Bottom < circle2Top){
+					
+						circle1Bottom = circle2Top;
+						newPieces[newGamePiece-2].gravitySpeed = -(newPieces[newGamePiece-2].gravitySpeed * newPieces[newGamePiece-2].bounce);
+					
+					}
+					
+					if(circle1Right < circle2Left){
+					
+						circle1Right = circle2Left;
+						newPieces[newGamePiece-1].speedX = -(newPieces[newGamePiece-1].gravitySpeed * newPieces[newGamePiece-1].bounce);
+					
+					}
+					else if(circle1Left > circle1Right){
+					
+						circle1Left = circle1Right;
+						newPieces[newGamePiece-1].speedX = (newPieces[newGamePiece-1].gravitySpeed * newPieces[newGamePiece-1].bounce);
+						
+					
+					}
+					
+					
+				}
+		
+			}
+	
+		}*/
+	}
+}
+
 function newPiece(){
 
-	GamePiece[newGamePiece] = new component(30, 30, "#00e600", 0, 0);
+
+	if(randoNum == (myGameArea.canvas.width*0.5)-3){
+			randoNum = (myGameArea.canvas.width*0.5)+3;
+			console.log(randoNum);
+		}
+		else{
+			randoNum = (myGameArea.canvas.width*0.5)-3;
+		}
+		
+		if(randoSpeed == 2){
+		
+			randoSpeed = -2;
+		
+		}
+		else{
+		
+			randoSpeed = 2;
+		
+		}
+
+	GamePiece[newGamePiece] = new component2(15, "#00e600", /*myGameArea.canvas.width/2*/ randoNum, 0);
 	newPieces.push(GamePiece[newGamePiece]);		
 
 	newPiecesUpdate = function () {
@@ -135,6 +256,28 @@ document.addEventListener('keydown', function(event) {
 	}
 
 	if (event.code == 'ArrowDown') {
+	
+	
+	
+		//randoNum = Math.floor(Math.random()*(myGameArea.canvas.width*0.5))+(myGameArea.canvas.width*0.25);
+		if(randoNum == (myGameArea.canvas.width*0.5)-3){
+			randoNum = (myGameArea.canvas.width*0.5)+3;
+			console.log(randoNum);
+		}
+		else{
+			randoNum = (myGameArea.canvas.width*0.5)-3;
+		}
+		
+		if(randoSpeed == 2){
+		
+			randoSpeed = -2;
+		
+		}
+		else{
+		
+			randoSpeed = 2;
+		
+		}
 
 		newPiece();
 	
