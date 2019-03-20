@@ -26,6 +26,7 @@ changeMode = false;
 burstLength = 50;
 burstInterval = 1;
 staleClearTime = 15000;
+wallBounceAdjust = 1.1;
 
 newPieceSpeed = 1000;
 
@@ -115,11 +116,38 @@ function component2(radius, color, x, y) {
 	//this.hitOther();
     }
     this.hitBottom = function() {
+	let pieceBouncing = true;
         var rockbottom = myGameArea.canvas.height - this.radius;
         if (this.y > rockbottom) {
             this.y = rockbottom;
             this.gravitySpeed = -(this.gravitySpeed * this.bounce);
         }
+	
+	calculateBouncing = function(){
+
+		let mark1 = this.y;
+		let mark2Function = function(){mark2 = this.y;}
+		
+
+		mark2 = 
+
+		if(Math.abs(difference) < 0.5){
+
+			pieceBouncing = true;
+
+		}
+
+	}
+
+	bouncingCalculation = setInterval(calculateBouncing, 50)
+
+	if(pieceBouncing == false){
+	alert("test");
+		this.speedX = 0;
+		clearInterval(calculateBouncing);
+
+	}
+
     }
 	this.hitLeft = function(){
 	var leftWall = this.radius;
@@ -128,13 +156,15 @@ function component2(radius, color, x, y) {
 			
 			if(this.gravitySpeed < 0){
 			
-				this.speedX = -(this.gravitySpeed * this.bounce);
+				//this.speedX = -((this.gravitySpeed*wallBounceAdjust) * this.bounce);
+				this.speedX = -((this.speedX*wallBounceAdjust) * this.bounce);
 			
 			}
 			else{
 
-				this.speedX = (this.gravitySpeed * this.bounce);
-
+				//this.speedX = ((this.gravitySpeed*wallBounceAdjust) * this.bounce);
+				this.speedX = ((this.speedX*wallBounceAdjust) * this.bounce);
+				
 			}
 
 		}
@@ -148,12 +178,14 @@ function component2(radius, color, x, y) {
 			
 			if(this.gravitySpeed < 0){
 			
-				this.speedX = (this.gravitySpeed * this.bounce);
+				//this.speedX = ((this.gravitySpeed*wallBounceAdjust) * this.bounce);
+				this.speedX = -((this.speedX*wallBounceAdjust) * this.bounce);
 
 			}
 			else{
 			
-				this.speedX = -(this.gravitySpeed * this.bounce);
+				//this.speedX = -((this.gravitySpeed*wallBounceAdjust) * this.bounce);
+				this.speedX = ((this.speedX*wallBounceAdjust) * this.bounce);
 
 			}
 
