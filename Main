@@ -17,6 +17,13 @@ GamePiece = [];
 newPieceToUpdate = [];
 newGamePiece = 0;
 randoSpeed = 2;
+speedChange = 2;
+gravityChange = 0.8;
+gravitySpeedChange = 1;
+bounceChange = 0.9;
+changeMode = false;
+burstLength = 50;
+burstInterval = 1;
 
 newPieceSpeed = 1000;
 
@@ -81,12 +88,14 @@ function component(width, height, color, x, y, type) {
 function component2(radius, color, x, y) {
     this.radius = radius;
     this.x = x;
-    this.y = y;    
+    this.y = y;
+
     this.speedX = randoSpeed;
+
     this.speedY = 0;    
-    this.gravity = 0.8;
-    this.gravitySpeed = 1;
-    this.bounce = 0.9;
+    this.gravity = gravityChange;
+    this.gravitySpeed = gravitySpeedChange;
+    this.bounce = bounceChange;
     this.update = function() {
         ctx = myGameArea.context;
         ctx.fillStyle = color;
@@ -99,7 +108,9 @@ function component2(radius, color, x, y) {
         this.x += this.speedX;
         this.y += this.speedY + this.gravitySpeed;
         this.hitBottom();
-		this.hitOther();
+	this.hitLeft();
+	this.hitRight();
+	//this.hitOther();
     }
     this.hitBottom = function() {
         var rockbottom = myGameArea.canvas.height - this.radius;
@@ -108,9 +119,29 @@ function component2(radius, color, x, y) {
             this.gravitySpeed = -(this.gravitySpeed * this.bounce);
         }
     }
+	this.hitLeft = function(){
+	var leftWall = this.radius;
+		if (this.x < leftWall) {
+			this.x = leftWall;
+			this.speedX = -(this.gravitySpeed * this.bounce);
+
+		}
+
+	}		
+
+	this.hitRight = function(){
+	var rightWall = myGameArea.canvas.width - this.radius;
+		if (this.x > rightWall) {
+			this.x = rightWall;
+			this.speedX = (this.gravitySpeed * this.bounce);
+
+		}
+
+	}
+
 	this.hitOther = function(){
 	
-	/*if(newGamePiece > 1){
+	if(newGamePiece > 1){
 	
 			for(let i = 0; i < newGamePiece; i++){
 	
@@ -171,31 +202,40 @@ function component2(radius, color, x, y) {
 		
 			}
 	
-		}*/
+		}
 	}
 }
 
 function newPiece(){
 
+	if(changeMode == false){	
 
-	if(randoNum == (myGameArea.canvas.width*0.5)-3){
-			randoNum = (myGameArea.canvas.width*0.5)+3;
+	if(randoNum == (myGameArea.canvas.width*0.5)-5){
+			randoNum = (myGameArea.canvas.width*0.5)/*+5*/;
 			console.log(randoNum);
 		}
 		else{
-			randoNum = (myGameArea.canvas.width*0.5)-3;
+			randoNum = (myGameArea.canvas.width*0.5)/*-5*/;
 		}
 		
-		if(randoSpeed == 2){
+		if(randoSpeed == speedChange){
 		
-			randoSpeed = -2;
+			randoSpeed = speedChange*-1;
 		
 		}
 		else{
 		
-			randoSpeed = 2;
+			randoSpeed = speedChange;
 		
 		}
+
+	}
+	else{
+
+		randoNum = 20;
+		randoSpeed = speedChange;
+
+	}
 
 	GamePiece[newGamePiece] = new component2(15, "#00e600", /*myGameArea.canvas.width/2*/ randoNum, 0);
 	newPieces.push(GamePiece[newGamePiece]);		
@@ -220,6 +260,12 @@ function newPiece(){
 
 	}
 
+	if(newGamePiece >= 250){
+
+		delete newPieces[newGamePiece-250].x;
+
+	}
+
 
 	console.log("GamePiece"+newGamePiece);
 	newGamePiece += 1;
@@ -238,6 +284,7 @@ document.addEventListener('keydown', function(event) {
 		if(newPieceSpeed > 0){
 		
 			newPieceSpeed -= 25;
+			document.getElementById("frequencyLabelValueId").innerHTML = newPieceSpeed;
 
 		}
 
@@ -250,6 +297,8 @@ document.addEventListener('keydown', function(event) {
 		clearInterval(makingNewPieces);
 
 		newPieceSpeed += 25;
+		document.getElementById("frequencyLabelValueId").innerHTML = newPieceSpeed;
+
 
 		makingNewPieces = setInterval(newPiece, newPieceSpeed);
 
@@ -260,12 +309,12 @@ document.addEventListener('keydown', function(event) {
 	
 	
 		//randoNum = Math.floor(Math.random()*(myGameArea.canvas.width*0.5))+(myGameArea.canvas.width*0.25);
-		if(randoNum == (myGameArea.canvas.width*0.5)-3){
-			randoNum = (myGameArea.canvas.width*0.5)+3;
+		if(randoNum == (myGameArea.canvas.width*0.5)-5){
+			randoNum = (myGameArea.canvas.width*0.5)+5;
 			console.log(randoNum);
 		}
 		else{
-			randoNum = (myGameArea.canvas.width*0.5)-3;
+			randoNum = (myGameArea.canvas.width*0.5)-5;
 		}
 		
 		if(randoSpeed == 2){
@@ -282,10 +331,208 @@ document.addEventListener('keydown', function(event) {
 		newPiece();
 	
 	}
+
+	if (event.code == 'ArrowUp') {
+
+		for(let i = 0; i < burstLength; i++){
+
+			setTimeout(newPiece, (100+(i*burstInterval)));
+
+		}
+
+	}
+
+	if (event.code == 'Digit1') {
+
+		speedChange -= 0.05;
+		document.getElementById("speedLabelValueId").innerHTML = speedChange;
+
+	}
+
+	if (event.code == 'Digit2') {
+
+		speedChange += 0.05;
+		document.getElementById("speedLabelValueId").innerHTML = speedChange;
+
+	}
+
+	if (event.code == 'KeyQ') {
+
+		gravityChange -= 0.05;
+		document.getElementById("gravityLabelValueId").innerHTML = gravityChange;
+
+	}
+
+	if (event.code == 'KeyW') {
+
+		gravityChange += 0.05;
+		document.getElementById("gravityLabelValueId").innerHTML = gravityChange;
+
+	}
+
+	if (event.code == 'KeyA') {
+
+		gravitySpeedChange -= 0.05;
+		document.getElementById("gravitySpeedLabelValueId").innerHTML = gravitySpeedChange;
+
+	}
+
+	if (event.code == 'KeyS') {
+
+		gravitySpeedChange += 0.05;
+		document.getElementById("gravitySpeedLabelValueId").innerHTML = gravitySpeedChange;
+
+	
+	}
+
+	if (event.code == 'KeyZ') {
+
+		bounceChange -= 0.05;
+		document.getElementById("bounceLabelValueId").innerHTML = bounceChange;
+	
+	}
+
+	if (event.code == 'KeyX') {
+
+		bounceChange += 0.05;
+		document.getElementById("bounceLabelValueId").innerHTML = bounceChange;
+
+	}
+
+	if (event.code == 'KeyE') {
+
+		burstLength -= 5;
+		document.getElementById("burstLengthLabelValueId").innerHTML = burstLength;
+	
+	}
+
+	if (event.code == 'KeyR') {
+
+		burstLength += 5;
+		document.getElementById("burstLengthLabelValueId").innerHTML = burstLength;
+
+	}
+
+	if (event.code == 'KeyD') {
+
+		burstInterval -= 1;
+		document.getElementById("burstIntervalLabelValueId").innerHTML = burstInterval;
+	
+	}
+
+	if (event.code == 'KeyF') {
+
+		burstInterval += 1;
+		document.getElementById("burstIntervalLabelValueId").innerHTML = burstInterval;
+
+	}
+
+	if (event.code == 'Space') {
+
+		if(changeMode == false){
+
+			changeMode = true;
+		
+		}
+		else{
+
+			changeMode = false;
+		
+		}
+
+	}
+
+	if (event.code == 'Delete') {
+
+		for(let i = 0; i < newPieces.length; i++){ 
+		
+			delete newPieces[i].x; 
+
+		}
+
+	}
+
+	if (event.code == 'End') {
+
+		clearInterval(makingNewPieces);
+
+	}
 	
 });
 
+br1 = document.createElement("br");
+document.body.appendChild(br1);
 
+frequencyLabel = document.createElement("label");
+frequencyLabel.id = "frequencyLabelId";
+frequencyLabel.innerHTML = "Interval(left/right):";
+document.body.appendChild(frequencyLabel);
+
+frequencyLabelValue = document.createElement("p");
+frequencyLabelValue.id = "frequencyLabelValueId";
+frequencyLabelValue.innerHTML = "unknown";
+document.body.appendChild(frequencyLabelValue);
+document.getElementById("frequencyLabelValueId").innerHTML = newPieceSpeed;
+
+speedLabel = document.createElement("label");
+speedLabel.innerHTML = "Speed(1/2):";
+document.body.appendChild(speedLabel);
+
+speedLabelValue = document.createElement("p");
+speedLabelValue.id = "speedLabelValueId";
+speedLabelValue.innerHTML = "unknown";
+document.body.appendChild(speedLabelValue);
+document.getElementById("speedLabelValueId").innerHTML = speedChange;
+
+gravityLabel = document.createElement("label");
+gravityLabel.innerHTML = "Gravity(q/w):";
+document.body.appendChild(gravityLabel);
+
+gravityLabelValue = document.createElement("p");
+gravityLabelValue.id = "gravityLabelValueId";
+gravityLabelValue.innerHTML = "unknown";
+document.body.appendChild(gravityLabelValue);
+document.getElementById("gravityLabelValueId").innerHTML = gravityChange;
+
+gravitySpeedLabel = document.createElement("label");
+gravitySpeedLabel.innerHTML = "Gravity Speed(a/s):";
+document.body.appendChild(gravitySpeedLabel);
+
+gravitySpeedLabelValue = document.createElement("p");
+gravitySpeedLabelValue.id = "gravitySpeedLabelValueId";
+gravitySpeedLabelValue.innerHTML = "unknown";
+document.body.appendChild(gravitySpeedLabelValue);
+document.getElementById("gravitySpeedLabelValueId").innerHTML = gravitySpeedChange;
+
+bounceLabel = document.createElement("label");
+bounceLabel.innerHTML = "Bounce(z/x):";
+document.body.appendChild(bounceLabel);
+
+bounceLabelValue = document.createElement("p");
+bounceLabelValue.id = "bounceLabelValueId";
+bounceLabelValue.innerHTML = "unknown";
+document.body.appendChild(bounceLabelValue);
+document.getElementById("bounceLabelValueId").innerHTML = bounceChange;
+
+burstLengthLabel = document.createElement("label");
+burstLengthLabel.innerHTML = "Burst Length(e/r):";
+document.body.appendChild(burstLengthLabel);
+
+burstLengthLabelValue = document.createElement("p");
+burstLengthLabelValue.id = "burstLengthLabelValueId";
+burstLengthLabelValue.innerHTML = "unknown";
+document.body.appendChild(burstLengthLabelValue);
+document.getElementById("burstLengthLabelValueId").innerHTML = burstLength;
+
+burstIntervalLabel = document.createElement("label");
+burstIntervalLabel.innerHTML = "Burst Interval(d/f):";
+document.body.appendChild(burstIntervalLabel);
+
+burstIntervalLabelValue = document.createElement("p");
+burstIntervalLabelValue.id = "burstIntervalLabelValueId";
+burstIntervalLabelValue.innerHTML = "unknown";
+document.body.appendChild(burstIntervalLabelValue);
+document.getElementById("burstIntervalLabelValueId").innerHTML = burstInterval;
 
 function updateGameArea() {
     myGameArea.clear();
