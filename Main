@@ -30,17 +30,17 @@ wallBounceAdjust = 1.1;
 
 newPieceSpeed = 1000;
 
-var myGamePiece;
+var GamePiece;
 
 function startGame() {
-	myGamePiece = new component(0, 0, "black", 0, 0);
-    myGameArea.start();
+	GamePiece = new component(0, 0, "black", 0, 0);
+    GameArea.start();
 
-	randoNum = (myGameArea.canvas.width*0.5)-3;
+	randoNum = (GameArea.canvas.width*0.5)-3;
 	
 	}
 
-var myGameArea = {
+var GameArea = {
     canvas : document.createElement("canvas"),
     start : function() {
         this.canvas.width = 480;
@@ -69,7 +69,7 @@ function component(width, height, color, x, y, type) {
     this.gravitySpeed = 1;
     this.bounce = 0.9;
     this.update = function() {
-        ctx = myGameArea.context;
+        ctx = GameArea.context;
         ctx.fillStyle = color;
         ctx.fillRect(this.x, this.y, this.width, this.height);
     }
@@ -80,7 +80,7 @@ function component(width, height, color, x, y, type) {
         this.hitBottom();
     }
     this.hitBottom = function() {
-        var rockbottom = myGameArea.canvas.height - this.height;
+        var rockbottom = GameArea.canvas.height - this.height;
         if (this.y > rockbottom) {
             this.y = rockbottom;
             this.gravitySpeed = -(this.gravitySpeed * this.bounce);
@@ -92,6 +92,11 @@ function component2(radius, color, x, y) {
     this.radius = radius;
     this.x = x;
     this.y = y;
+	let mark1Store = 0;
+	let mark2Store = 0;
+	let difference;
+	let activelyCalculatingBounce = true;
+	let pieceBouncing = true;
 
     this.speedX = randoSpeed;
 
@@ -100,7 +105,7 @@ function component2(radius, color, x, y) {
     this.gravitySpeed = gravitySpeedChange;
     this.bounce = bounceChange;
     this.update = function() {
-        ctx = myGameArea.context;
+        ctx = GameArea.context;
         ctx.fillStyle = color;
 		ctx.beginPath();
 		ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
@@ -111,40 +116,120 @@ function component2(radius, color, x, y) {
         this.x += this.speedX;
         this.y += this.speedY + this.gravitySpeed;
         this.hitBottom();
-	this.hitLeft();
-	this.hitRight();
-	//this.hitOther();
+		this.hitLeft();
+		this.hitRight();
+		//this.hitOther();
+		this.calculateBouncing();
     }
     this.hitBottom = function() {
-	let pieceBouncing = true;
-        var rockbottom = myGameArea.canvas.height - this.radius;
+        var rockbottom = GameArea.canvas.height - this.radius;
         if (this.y > rockbottom) {
             this.y = rockbottom;
             this.gravitySpeed = -(this.gravitySpeed * this.bounce);
         }
 	
-	calculateBouncing = function(){
+	this.calculateBouncing = function(){
+	
+		if(activelyCalculatingBounce == true){
 
-		let mark1 = this.y;
-		let mark2Function = function(){mark2 = this.y;}
+			let mark1;
+			let mark2;
+			mark1Store = this.y;
+			mark2Store = this.y;
+			let mark1Capture = function(){mark1 = mark1Store;}
+			let mark2Capture = function(){mark2 = mark2Store;}
+			let differenceCapture =  function(){difference = mark1 - mark2;}
+			//let consoleCaputure = function(){console.log(Math.abs(difference));}
+			let differenceCalculation = function(){
+			setTimeout(mark1Capture, 400);
+			setTimeout(mark2Capture, 1000);
+			setTimeout(differenceCapture, 1100);
+			//setTimeout(consoleCaputure, 1100);
+			}
 		
+			setTimeout(differenceCalculation, 1200);
+			//setTimeout(consoleCaputure, 1101);
 
-		mark2 = 
+			if(Math.abs(difference) < 0.1 && this.y > ((GameArea.canvas.height-this.radius))-0.5){
+			//alert("not bouncing");
+				pieceBouncing = false;
+				activelyCalculatingBounce = false;
 
-		if(Math.abs(difference) < 0.5){
-
-			pieceBouncing = true;
-
+			}
+		
 		}
 
 	}
 
-	bouncingCalculation = setInterval(calculateBouncing, 50)
-
 	if(pieceBouncing == false){
-	alert("test");
-		this.speedX = 0;
-		clearInterval(calculateBouncing);
+
+
+	if(this.speedX > 0){
+		do{
+
+			//if(this.speedX > 0){
+
+			//this.speedX -= 0.05;
+			this.speedX -= ((0.9+(this.gravity/2))*0.1);
+			console.log(this.speedX);
+			
+				//this.speedX = 0;
+
+			//}
+
+			if(this.speedX < 0){
+
+				this.speedX = 0;
+				return;
+
+			}
+
+		}
+		while(this.speedX < 0);
+		//console.log(this.speedX);
+	}
+	else if(this.speedX < 0){
+		do{
+
+			this.speedX += ((0.9+(this.gravity/2))*0.1);
+			console.log(this.speedX);
+
+			if(this.speedX > 0){
+
+				this.speedX = 0;
+				return;
+
+			}
+
+		}
+		while(this.speedX > 0);
+
+	}
+	
+		/*for(let i = 0; this.speedX > 0; i++){
+			
+			let timeWaster = 0;
+			
+			while(){
+			
+				let timeWasterFunc = function(){timeWaster = 1;}
+			
+				setTimeout(timeWasterFunc, 250);
+				console.log("timewasting");
+			
+			}
+			
+			
+			this.speedX -= 0.1
+			
+			console.log(this.speedX);
+			if(this.speedX < 0){
+			
+				this.speedX = 0;
+			
+			}
+		
+		}*/
 
 	}
 
@@ -154,40 +239,40 @@ function component2(radius, color, x, y) {
 		if (this.x < leftWall) {
 			this.x = leftWall;
 			
-			if(this.gravitySpeed < 0){
+			//if(this.gravitySpeed < 0){
 			
 				//this.speedX = -((this.gravitySpeed*wallBounceAdjust) * this.bounce);
 				this.speedX = -((this.speedX*wallBounceAdjust) * this.bounce);
 			
-			}
-			else{
+			//}
+			//else{
 
 				//this.speedX = ((this.gravitySpeed*wallBounceAdjust) * this.bounce);
-				this.speedX = ((this.speedX*wallBounceAdjust) * this.bounce);
+				//this.speedX = -((this.speedX*wallBounceAdjust) * this.bounce);
 				
-			}
+			//}
 
 		}
 
 	}		
 
 	this.hitRight = function(){
-	var rightWall = myGameArea.canvas.width - this.radius;
+	var rightWall = GameArea.canvas.width - this.radius;
 		if (this.x > rightWall) {
 			this.x = rightWall;
 			
-			if(this.gravitySpeed < 0){
+			//if(this.gravitySpeed < 0){
 			
 				//this.speedX = ((this.gravitySpeed*wallBounceAdjust) * this.bounce);
 				this.speedX = -((this.speedX*wallBounceAdjust) * this.bounce);
 
-			}
-			else{
+			//}
+			//else{
 			
 				//this.speedX = -((this.gravitySpeed*wallBounceAdjust) * this.bounce);
-				this.speedX = ((this.speedX*wallBounceAdjust) * this.bounce);
+				//this.speedX = -((this.speedX*wallBounceAdjust) * this.bounce);
 
-			}
+			//}
 
 		}
 
@@ -264,12 +349,12 @@ function newPiece(){
 
 	if(changeMode == false){	
 
-	if(randoNum == (myGameArea.canvas.width*0.5)-5){
-			randoNum = (myGameArea.canvas.width*0.5)/*+5*/;
+	if(randoNum == (GameArea.canvas.width*0.5)-5){
+			randoNum = (GameArea.canvas.width*0.5)/*+5*/;
 			console.log(randoNum);
 		}
 		else{
-			randoNum = (myGameArea.canvas.width*0.5)/*-5*/;
+			randoNum = (GameArea.canvas.width*0.5)/*-5*/;
 		}
 		
 		if(randoSpeed == speedChange){
@@ -291,7 +376,7 @@ function newPiece(){
 
 	}
 
-	GamePiece[newGamePiece] = new component2(15, "#00e600", /*myGameArea.canvas.width/2*/ randoNum, 0);
+	GamePiece[newGamePiece] = new component2(15, "#00e600", /*GameArea.canvas.width/2*/ randoNum, 0);
 	newPieces.push(GamePiece[newGamePiece]);		
 
 	newPiecesUpdate = function () {
@@ -375,13 +460,13 @@ document.addEventListener('keydown', function(event) {
 	
 	
 	
-		//randoNum = Math.floor(Math.random()*(myGameArea.canvas.width*0.5))+(myGameArea.canvas.width*0.25);
-		if(randoNum == (myGameArea.canvas.width*0.5)-5){
-			randoNum = (myGameArea.canvas.width*0.5)+5;
+		//randoNum = Math.floor(Math.random()*(GameArea.canvas.width*0.5))+(GameArea.canvas.width*0.25);
+		if(randoNum == (GameArea.canvas.width*0.5)-5){
+			randoNum = (GameArea.canvas.width*0.5)+5;
 			console.log(randoNum);
 		}
 		else{
-			randoNum = (myGameArea.canvas.width*0.5)-5;
+			randoNum = (GameArea.canvas.width*0.5)-5;
 		}
 		
 		if(randoSpeed == 2){
@@ -628,9 +713,9 @@ document.getElementById("staleClearTimeLabelValueId").innerHTML = (Math.round(st
 
 
 function updateGameArea() {
-    myGameArea.clear();
-    myGamePiece.newPos();
-    myGamePiece.update();
+    GameArea.clear();
+    GamePiece.newPos();
+    GamePiece.update();
     newPiecesUpdate();
     newPiecesPos();
 }
