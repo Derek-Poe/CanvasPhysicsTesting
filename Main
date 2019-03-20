@@ -24,9 +24,10 @@ gravitySpeedChange = 1;
 bounceChange = 0.9;
 changeMode = false;
 burstLength = 50;
-burstInterval = 1;
+burstInterval = 10;
 staleClearTime = 15000;
-wallBounceAdjust = 1.1;
+//wallBounceAdjust = 1.05;
+wallBounceAdjust = 1.025;
 
 newPieceSpeed = 1000;
 
@@ -43,8 +44,8 @@ function startGame() {
 var GameArea = {
     canvas : document.createElement("canvas"),
     start : function() {
-        this.canvas.width = 480;
-        this.canvas.height = 270;
+        this.canvas.width = 640;
+        this.canvas.height = 360;
         this.context = this.canvas.getContext("2d");
         document.body.insertBefore(this.canvas, document.body.childNodes[0]);
         this.interval = setInterval(updateGameArea, 20);        
@@ -457,28 +458,6 @@ document.addEventListener('keydown', function(event) {
 	}
 
 	if (event.code == 'ArrowDown') {
-	
-	
-	
-		//randoNum = Math.floor(Math.random()*(GameArea.canvas.width*0.5))+(GameArea.canvas.width*0.25);
-		if(randoNum == (GameArea.canvas.width*0.5)-5){
-			randoNum = (GameArea.canvas.width*0.5)+5;
-			console.log(randoNum);
-		}
-		else{
-			randoNum = (GameArea.canvas.width*0.5)-5;
-		}
-		
-		if(randoSpeed == 2){
-		
-			randoSpeed = -2;
-		
-		}
-		else{
-		
-			randoSpeed = 2;
-		
-		}
 
 		newPiece();
 	
@@ -496,14 +475,14 @@ document.addEventListener('keydown', function(event) {
 
 	if (event.code == 'Digit1') {
 
-		speedChange -= 0.05;
+		speedChange -= 0.1;
 		document.getElementById("speedLabelValueId").innerHTML = speedChange;
 
 	}
 
 	if (event.code == 'Digit2') {
 
-		speedChange += 0.05;
+		speedChange += 0.1;
 		document.getElementById("speedLabelValueId").innerHTML = speedChange;
 
 	}
@@ -567,14 +546,14 @@ document.addEventListener('keydown', function(event) {
 
 	if (event.code == 'KeyD') {
 
-		burstInterval -= 1;
+		burstInterval -= 10;
 		document.getElementById("burstIntervalLabelValueId").innerHTML = burstInterval;
 	
 	}
 
 	if (event.code == 'KeyF') {
 
-		burstInterval += 1;
+		burstInterval += 10;
 		document.getElementById("burstIntervalLabelValueId").innerHTML = burstInterval;
 
 	}
