@@ -15,6 +15,7 @@ canvas {
 newPieces = [];
 GamePiece = [];
 newPieceToUpdate = [];
+piecesToRemove = [];
 newGamePiece = 0;
 randoSpeed = 2;
 speedChange = 2;
@@ -24,6 +25,7 @@ bounceChange = 0.9;
 changeMode = false;
 burstLength = 50;
 burstInterval = 1;
+staleClearTime = 15000;
 
 newPieceSpeed = 1000;
 
@@ -123,7 +125,17 @@ function component2(radius, color, x, y) {
 	var leftWall = this.radius;
 		if (this.x < leftWall) {
 			this.x = leftWall;
-			this.speedX = -(this.gravitySpeed * this.bounce);
+			
+			if(this.gravitySpeed < 0){
+			
+				this.speedX = -(this.gravitySpeed * this.bounce);
+			
+			}
+			else{
+
+				this.speedX = (this.gravitySpeed * this.bounce);
+
+			}
 
 		}
 
@@ -133,7 +145,17 @@ function component2(radius, color, x, y) {
 	var rightWall = myGameArea.canvas.width - this.radius;
 		if (this.x > rightWall) {
 			this.x = rightWall;
-			this.speedX = (this.gravitySpeed * this.bounce);
+			
+			if(this.gravitySpeed < 0){
+			
+				this.speedX = (this.gravitySpeed * this.bounce);
+
+			}
+			else{
+			
+				this.speedX = -(this.gravitySpeed * this.bounce);
+
+			}
 
 		}
 
@@ -263,6 +285,19 @@ function newPiece(){
 	if(newGamePiece >= 250){
 
 		delete newPieces[newGamePiece-250].x;
+
+	}
+
+	for(let i = 0; i <= newGamePiece; i++){
+
+		piecesToRemove[i] = newPieces[i];
+		clearStalePieces = function (){
+
+		delete piecesToRemove[i].x;
+
+		}
+
+		setTimeout(clearStalePieces, staleClearTime)
 
 	}
 
@@ -427,6 +462,20 @@ document.addEventListener('keydown', function(event) {
 
 	}
 
+	if (event.code == 'KeyC') {
+
+		staleClearTime -= 1000;
+		document.getElementById("staleClearTimeLabelValueId").innerHTML = (Math.round(staleClearTime/100)*0.1)+"s";
+	
+	}
+
+	if (event.code == 'KeyV') {
+
+		staleClearTime += 1000;
+		document.getElementById("staleClearTimeLabelValueId").innerHTML = (Math.round(staleClearTime/100)*0.1)+"s";
+
+	}
+
 	if (event.code == 'Space') {
 
 		if(changeMode == false){
@@ -533,6 +582,18 @@ burstIntervalLabelValue.id = "burstIntervalLabelValueId";
 burstIntervalLabelValue.innerHTML = "unknown";
 document.body.appendChild(burstIntervalLabelValue);
 document.getElementById("burstIntervalLabelValueId").innerHTML = burstInterval;
+
+staleClearTimeLabel = document.createElement("label");
+staleClearTimeLabel.innerHTML = "Stale Clear Time(c/v):";
+document.body.appendChild(staleClearTimeLabel);
+
+staleClearTimeLabelValue = document.createElement("p");
+staleClearTimeLabelValue.id = "staleClearTimeLabelValueId";
+staleClearTimeLabelValue.innerHTML = "unknown";
+document.body.appendChild(staleClearTimeLabelValue);
+document.getElementById("staleClearTimeLabelValueId").innerHTML = (Math.round(staleClearTime/100)*0.1)+"s";
+
+
 
 function updateGameArea() {
     myGameArea.clear();
