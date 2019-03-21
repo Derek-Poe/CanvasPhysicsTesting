@@ -408,7 +408,7 @@ console.log("asdf");
 			else if(circle1Bottom < circle2Top){
 					
 				circle1Bottom = circle2Top;
-				this.gravitySpeed = (this.gravitySpeed * this.bounce);
+				this.gravitySpeed = -(this.gravitySpeed * this.bounce);
 				
 			}
 					
