@@ -21,7 +21,7 @@ randoSpeed = 2;
 speedChange = 2;
 gravityChange = 0.8;
 gravitySpeedChange = 1;
-bounceChange = 0.9;
+bounceChange = 0.75;
 changeMode = false;
 burstLength = 50;
 burstInterval = 10;
@@ -81,23 +81,35 @@ function component(width, height, color, x, y, type) {
         this.hitBottom();
     }
     this.hitBottom = function() {
-        var rockbottom = GameArea.canvas.height - this.height;
-        if (this.y > rockbottom) {
-            this.y = rockbottom;
+        var canvasFloor = GameArea.canvas.height - this.height;
+        if (this.y > canvasFloor) {
+            this.y = canvasFloor;
             this.gravitySpeed = -(this.gravitySpeed * this.bounce);
         }
     }
 }
 
-function component2(radius, color, x, y) {
-    this.radius = radius;
-    this.x = x;
-    this.y = y;
+function component2(radius, color, x, y, id) {
+	this.id = id;
+   	this.radius = radius;
+   	this.x = x;
+   	this.y = y;
 	let mark1Store = 0;
 	let mark2Store = 0;
 	let difference;
 	let activelyCalculatingBounce = true;
 	let pieceBouncing = true;
+	let loopCount = 0;
+	/*let radiusCondition;
+	let distance;		
+	let circle1Bottom;
+	let circle1Top;
+	let circle1Left;
+	let circle1Right;
+	let circle2Bottom;
+	let circle2Top;
+	let circle2Left;
+	let circle2Right;*/
 
     this.speedX = randoSpeed;
 
@@ -120,12 +132,13 @@ function component2(radius, color, x, y) {
 		this.hitLeft();
 		this.hitRight();
 		//this.hitOther();
+		this.hitOtherCalculate();
 		this.calculateBouncing();
     }
     this.hitBottom = function() {
-        var rockbottom = GameArea.canvas.height - this.radius;
-        if (this.y > rockbottom) {
-            this.y = rockbottom;
+        var canvasFloor = GameArea.canvas.height - this.radius;
+        if (this.y > canvasFloor) {
+            this.y = canvasFloor;
             this.gravitySpeed = -(this.gravitySpeed * this.bounce);
         }
 	
@@ -279,71 +292,132 @@ function component2(radius, color, x, y) {
 
 	}
 
-	this.hitOther = function(){
+	this.hitOtherCalculate = function(){
 	
-	if(newGamePiece > 1){
+	if(newGamePiece > 0){
 	
-			for(let i = 0; i < newGamePiece; i++){
-	
-				var dx = newPieces[newGamePiece-2].x - newPieces[newGamePiece-1].x;
-				var dy = newPieces[newGamePiece-2].y - newPieces[newGamePiece-1].y;
-				var distance = Math.sqrt(dx * dx + dy * dy);
-				
-				circle1Bottom = newPieces[newGamePiece-2].y - newPieces[newGamePiece-2].radius;
-				circle1Top = newPieces[newGamePiece-2].y + newPieces[newGamePiece-2].radius;
-				circle1Left = newPieces[newGamePiece-2].x + newPieces[newGamePiece-2].radius;
-				circle1Right = newPieces[newGamePiece-2].x - newPieces[newGamePiece-2].radius;
-				
-				circle2Bottom = newPieces[newGamePiece-1].y + newPieces[newGamePiece-1].radius;
-				circle2Top = newPieces[newGamePiece-1].y - newPieces[newGamePiece-1].radius;
-				circle2Left = newPieces[newGamePiece-1].x - newPieces[newGamePiece-1].radius;
-				circle2Right = newPieces[newGamePiece-1].x + newPieces[newGamePiece-1].radius;
+		if(loopCount < newPieces.length+1){
 
-				if (distance < newPieces[newGamePiece-2].radius + newPieces[newGamePiece-1].radius) {
-					
-					console.log("collision");
-					
-					if(circle1Top == circle1Bottom){
-					
-						//nothing
-					
+		console.log(loopCount);
+	
+			for(let i = 0; i < newPieces.length; i++){
+				
+				//loopCount += 1;
+
+				if(this.id == i){
+					console.log("skipped");
+					i += 1;
+
+				}
+
+				console.log("LoopTest: "+i);
+				
+				let dx = [];
+				let dy = [];
+				dx[i] = this.x - newPieces[i].x;
+				dy[i] = this.y - newPieces[i].y;
+				let distance = Math.sqrt(dx[i] * dx[i] + dy[i] * dy[i]);
+								
+				let radiusCondition = this.radius + newPieces[i].radius;
+
+				let circle1Bottom = this.y - this.radius;
+				let circle1Top = this.y + this.radius;
+				let circle1Left = this.x + this.radius;
+				let circle1Right = this.x - this.radius;
+				
+				let circle2Bottom = newPieces[i].y + newPieces[i].radius;
+				let circle2Top = newPieces[i].y - newPieces[i].radius;
+				let circle2Left = newPieces[i].x - newPieces[i].radius;
+				let circle2Right = newPieces[i].x + newPieces[i].radius;
+
+					if(i >= newGamePiece){
+						console.log("returned");
+						return;
+
 					}
 					
-					if(circle1Top < circle2Bottom){
+				if (distance < radiusCondition) {
 					
-						circle1Top = circle2Bottom;
-						newPieces[newGamePiece-2].gravitySpeed = (newPieces[newGamePiece-2].gravitySpeed * newPieces[newGamePiece-2].bounce);
-						console.log("topbottom");
+			console.log("collision");
 					
-					}
-					else if(circle1Bottom < circle2Top){
+			if(circle1Top < circle2Bottom){
 					
-						circle1Bottom = circle2Top;
-						newPieces[newGamePiece-2].gravitySpeed = -(newPieces[newGamePiece-2].gravitySpeed * newPieces[newGamePiece-2].bounce);
+				circle1Top = circle2Bottom;
+				this.gravitySpeed = -(this.gravitySpeed * this.bounce);
+				console.log("topbottom");
 					
-					}
+			}
+			else if(circle1Bottom < circle2Top){
 					
-					if(circle1Right < circle2Left){
+				circle1Bottom = circle2Top;
+				this.gravitySpeed = (this.gravitySpeed * this.bounce);
+				
+			}
 					
-						circle1Right = circle2Left;
-						newPieces[newGamePiece-1].speedX = -(newPieces[newGamePiece-1].gravitySpeed * newPieces[newGamePiece-1].bounce);
+			if(circle1Right < circle2Left){
 					
-					}
-					else if(circle1Left > circle1Right){
+				circle1Right = circle2Left;
+				this.speedX = -((this.speedX*wallBounceAdjust) * this.bounce);
 					
-						circle1Left = circle1Right;
-						newPieces[newGamePiece-1].speedX = (newPieces[newGamePiece-1].gravitySpeed * newPieces[newGamePiece-1].bounce);
+			}
+			else if(circle1Left > circle1Right){
+					
+				circle1Left = circle2Right;
+				this.speedX = -((this.speedX*wallBounceAdjust) * this.bounce);
 						
 					
-					}
-					
-					
+			}
+						
+		}
+				
+
 				}
 		
 			}
 	
 		}
-	}
+
+	}	
+
+
+	/*this.hitOther = function(){
+	console.log(distance+ " --- " + radiusCondition);
+		if (distance < radiusCondition) {
+					
+			console.log("collision");
+					
+			if(circle1Top < circle2Bottom){
+					
+				circle1Top = circle2Bottom;
+				this.gravitySpeed = -(this.gravitySpeed * this.bounce);
+				console.log("topbottom");
+					
+			}
+			else if(circle1Bottom < circle2Top){
+					
+				circle1Bottom = circle2Top;
+				this.gravitySpeed = (this.gravitySpeed * this.bounce);
+				
+			}
+					
+			if(circle1Right < circle2Left){
+					
+				circle1Right = circle2Left;
+				this.speedX = -((this.speedX*wallBounceAdjust) * this.bounce);
+					
+			}
+			else if(circle1Left > circle1Right){
+					
+				circle1Left = circle2Right;
+				this.speedX = -((this.speedX*wallBounceAdjust) * this.bounce);
+						
+					
+			}
+						
+		}
+
+	}*/
+
 }
 
 function newPiece(){
@@ -377,7 +451,7 @@ function newPiece(){
 
 	}
 
-	GamePiece[newGamePiece] = new component2(15, "#00e600", /*GameArea.canvas.width/2*/ randoNum, 0);
+	GamePiece[newGamePiece] = new component2(15, "#00e600", /*GameArea.canvas.width/2*/ randoNum, 0, newGamePiece);
 	newPieces.push(GamePiece[newGamePiece]);		
 
 	newPiecesUpdate = function () {
@@ -475,14 +549,14 @@ document.addEventListener('keydown', function(event) {
 
 	if (event.code == 'Digit1') {
 
-		speedChange -= 0.1;
+		speedChange -= 0.25;
 		document.getElementById("speedLabelValueId").innerHTML = speedChange;
 
 	}
 
 	if (event.code == 'Digit2') {
 
-		speedChange += 0.1;
+		speedChange += 0.25;
 		document.getElementById("speedLabelValueId").innerHTML = speedChange;
 
 	}
